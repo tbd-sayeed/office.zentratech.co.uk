@@ -16,11 +16,12 @@ class DashboardController extends Controller
         $totalClients = Client::where('is_active', true)->count();
         $totalServices = Service::where('is_active', true)->count();
         
-        // Upcoming renewals (30 days)
+        // Upcoming renewals (next 18 months – domain renewals are often annual)
+        $renewalsWindowDays = 540;
         $upcomingRenewals = Service::where('is_active', true)
-            ->where('service_type', 'domain_hosting')
+            ->whereHas('serviceType', fn($q) => $q->where('form_section', 'domain_hosting'))
             ->whereNotNull('expiration_date')
-            ->whereBetween('expiration_date', [now(), now()->addDays(30)])
+            ->whereBetween('expiration_date', [now()->startOfDay(), now()->addDays($renewalsWindowDays)])
             ->count();
 
         // Payments received this month
@@ -28,15 +29,21 @@ class DashboardController extends Controller
             ->whereYear('payment_date', now()->year)
             ->sum('amount');
 
-        // Payments due (outstanding)
+        // Payments due (outstanding, after discount)
         $paymentsDue = Service::where('is_active', true)
-            ->selectRaw('SUM(total_amount - paid_amount) as total_due')
+            ->selectRaw('SUM(total_amount - COALESCE(discount, 0) - paid_amount) as total_due')
             ->first()
             ->total_due ?? 0;
 
-        // Contracts expiring soon (30 days)
+        // Total profit (client net - team cost), in GBP
+        $totalProfit = Service::where('is_active', true)
+            ->with('teamAssignments')
+            ->get()
+            ->sum(fn ($s) => $s->profit);
+
+        // Contracts expiring soon (30 days) - development & project-based services
         $contractsExpiring = Service::where('is_active', true)
-            ->where('service_type', 'web_mobile_dev')
+            ->whereHas('serviceType', fn($q) => $q->where('form_section', 'project_based'))
             ->whereNotNull('contract_end_date')
             ->whereBetween('contract_end_date', [now(), now()->addDays(30)])
             ->count();
@@ -50,11 +57,11 @@ class DashboardController extends Controller
             ->limit(5)
             ->get();
 
-        // Upcoming renewals list
+        // Upcoming renewals list (same window as above)
         $renewalsList = Service::where('is_active', true)
-            ->where('service_type', 'domain_hosting')
+            ->whereHas('serviceType', fn($q) => $q->where('form_section', 'domain_hosting'))
             ->whereNotNull('expiration_date')
-            ->whereBetween('expiration_date', [now(), now()->addDays(30)])
+            ->whereBetween('expiration_date', [now()->startOfDay(), now()->addDays($renewalsWindowDays)])
             ->with('client')
             ->orderBy('expiration_date', 'asc')
             ->limit(10)
@@ -76,6 +83,7 @@ class DashboardController extends Controller
             'upcomingRenewals',
             'paymentsReceived',
             'paymentsDue',
+            'totalProfit',
             'contractsExpiring',
             'recentClients',
             'recentServices',

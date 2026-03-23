@@ -3,95 +3,126 @@
 @section('title', $client->company_name)
 
 @section('content')
-<div class="mb-6 flex justify-between items-center">
+<div class="d-flex justify-content-between align-items-center mb-4">
     <div>
-        <h1 class="text-3xl font-bold text-gray-900">{{ $client->company_name }}</h1>
-        <p class="text-gray-600 mt-1">{{ $client->contact_person }} • {{ $client->email }}</p>
+        <h1 class="h3 fw-bold text-dark mb-1">{{ $client->company_name }}</h1>
+        <p class="text-muted mb-0">{{ $client->contact_person }} &bull; {{ $client->email }}</p>
     </div>
-    <div class="flex space-x-2">
-        <a href="{{ route('clients.edit', $client) }}" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">Edit</a>
-        <a href="{{ route('services.create', ['client_id' => $client->id]) }}" class="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded">Add Service</a>
-    </div>
-</div>
-
-<div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
-    <div class="lg:col-span-2 bg-white shadow rounded-lg p-6">
-        <h2 class="text-xl font-semibold mb-4">Client Information</h2>
-        <dl class="grid grid-cols-1 gap-x-4 gap-y-6 sm:grid-cols-2">
-            <div>
-                <dt class="text-sm font-medium text-gray-500">Company Name</dt>
-                <dd class="mt-1 text-sm text-gray-900">{{ $client->company_name }}</dd>
-            </div>
-            <div>
-                <dt class="text-sm font-medium text-gray-500">Contact Person</dt>
-                <dd class="mt-1 text-sm text-gray-900">{{ $client->contact_person }}</dd>
-            </div>
-            <div>
-                <dt class="text-sm font-medium text-gray-500">Email</dt>
-                <dd class="mt-1 text-sm text-gray-900">{{ $client->email }}</dd>
-            </div>
-            <div>
-                <dt class="text-sm font-medium text-gray-500">Phone</dt>
-                <dd class="mt-1 text-sm text-gray-900">{{ $client->phone ?? 'N/A' }}</dd>
-            </div>
-            @if($client->address)
-            <div class="sm:col-span-2">
-                <dt class="text-sm font-medium text-gray-500">Address</dt>
-                <dd class="mt-1 text-sm text-gray-900">{{ $client->address }}</dd>
-            </div>
-            @endif
-        </dl>
-        @if($client->notes)
-        <div class="mt-6">
-            <dt class="text-sm font-medium text-gray-500">Notes</dt>
-            <dd class="mt-1 text-sm text-gray-900">{{ $client->notes }}</dd>
-        </div>
-        @endif
-    </div>
-
-    <div class="bg-white shadow rounded-lg p-6">
-        <h2 class="text-xl font-semibold mb-4">Quick Stats</h2>
-        <div class="space-y-4">
-            <div>
-                <p class="text-sm text-gray-500">Total Services</p>
-                <p class="text-2xl font-bold">{{ $client->services->count() }}</p>
-            </div>
-            <div>
-                <p class="text-sm text-gray-500">Total Payments</p>
-                <p class="text-2xl font-bold">${{ number_format($client->payments->sum('amount'), 2) }}</p>
-            </div>
-        </div>
+    <div class="d-flex gap-2">
+        <a href="{{ route('clients.edit', $client) }}" class="btn btn-outline-primary">Edit</a>
+        <a href="{{ route('services.create', ['client_id' => $client->id]) }}" class="btn btn-primary">Add Service</a>
     </div>
 </div>
 
-<div class="bg-white shadow rounded-lg">
-    <div class="px-4 py-5 sm:p-6">
-        <h2 class="text-xl font-semibold mb-4">Services</h2>
-        <div class="overflow-x-auto">
-            <table class="min-w-full divide-y divide-gray-200">
-                <thead class="bg-gray-50">
+<div class="row g-4 mb-4">
+    <div class="col-lg-8">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-white border-0 pt-4">
+                <h5 class="mb-0 fw-semibold">Client Information</h5>
+            </div>
+            <div class="card-body">
+                <div class="row g-3">
+                    <div class="col-sm-6">
+                        <p class="text-muted small mb-0">Company Name</p>
+                        <p class="mb-0 fw-medium">{{ $client->company_name }}</p>
+                    </div>
+                    <div class="col-sm-6">
+                        <p class="text-muted small mb-0">Contact Person</p>
+                        <p class="mb-0 fw-medium">{{ $client->contact_person }}</p>
+                    </div>
+                    <div class="col-sm-6">
+                        <p class="text-muted small mb-0">Email</p>
+                        <p class="mb-0">{{ $client->email }}</p>
+                    </div>
+                    <div class="col-sm-6">
+                        <p class="text-muted small mb-0">Phone</p>
+                        <p class="mb-0">{{ $client->phone ?? 'N/A' }}</p>
+                    </div>
+                    @if($client->address)
+                    <div class="col-12">
+                        <p class="text-muted small mb-0">Address</p>
+                        <p class="mb-0">{{ $client->address }}</p>
+                    </div>
+                    @endif
+                    @if($client->notes)
+                    <div class="col-12">
+                        <p class="text-muted small mb-0">Notes</p>
+                        <p class="mb-0">{{ $client->notes }}</p>
+                    </div>
+                    @endif
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-4">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-white border-0 pt-4">
+                <h5 class="mb-0 fw-semibold">Quick Stats</h5>
+            </div>
+            <div class="card-body">
+                <div class="mb-4">
+                    <p class="text-muted small mb-0">Total Services</p>
+                    <p class="fs-3 fw-bold mb-0">{{ $client->services->count() }}</p>
+                </div>
+                @php
+                    $agreedByCur = $client->services->groupBy(fn($s) => $s->currency ?? 'GBP')->map(fn($g) => $g->sum(fn($s) => $s->total_amount - ($s->discount ?? 0)));
+                    $paidByCur = $client->services->groupBy(fn($s) => $s->currency ?? 'GBP')->map(fn($g) => $g->sum('paid_amount'));
+                    $dueByCur = $client->services->groupBy(fn($s) => $s->currency ?? 'GBP')->map(fn($g) => $g->sum(fn($s) => max(0, $s->total_amount - ($s->discount ?? 0) - $s->paid_amount)));
+                    $totalProfit = $client->services->sum(fn($s) => $s->profit);
+                @endphp
+                <div class="row g-3">
+                    <div class="col-4">
+                        <p class="text-muted small mb-0">Total Agreed</p>
+                        <p class="fs-5 fw-bold text-primary mb-0">{{ $agreedByCur->isEmpty() ? currency_format(0, 'GBP') : $agreedByCur->map(fn($a,$c) => currency_format($a,$c))->implode(' + ') }}</p>
+                    </div>
+                    <div class="col-4">
+                        <p class="text-muted small mb-0">Total Paid</p>
+                        <p class="fs-5 fw-bold text-success mb-0">{{ $paidByCur->isEmpty() ? currency_format(0, 'GBP') : $paidByCur->map(fn($a,$c) => currency_format($a,$c))->implode(' + ') }}</p>
+                    </div>
+                    <div class="col-4">
+                        <p class="text-muted small mb-0">Balance Due</p>
+                        <p class="fs-5 fw-bold {{ $dueByCur->sum() > 0 ? 'text-warning' : 'text-muted' }} mb-0">{{ $dueByCur->isEmpty() ? currency_format(0, 'GBP') : ($dueByCur->filter(fn($v)=>$v>0)->map(fn($a,$c) => currency_format($a,$c))->implode(' + ') ?: currency_format(0,'GBP')) }}</p>
+                    </div>
+                    <div class="col-12 pt-2 border-top">
+                        <p class="text-muted small mb-0">ZentraTech Profit</p>
+                        <p class="fs-5 fw-bold text-success mb-0">{{ currency_format($totalProfit, 'GBP') }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card border-0 shadow-sm">
+    <div class="card-header bg-white border-0 pt-4">
+        <h5 class="mb-0 fw-semibold">Services</h5>
+    </div>
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
                     <tr>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Service Name</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Type</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Amount</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Due</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
+                        <th>Service Name</th>
+                        <th>Type</th>
+                        <th>Amount</th>
+                        <th>Due</th>
+                        <th>Profit</th>
+                        <th></th>
                     </tr>
                 </thead>
-                <tbody class="bg-white divide-y divide-gray-200">
+                <tbody>
                     @forelse($client->services as $service)
                     <tr>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ $service->service_name }}</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ ucfirst(str_replace('_', ' ', $service->service_type)) }}</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${{ number_format($service->total_amount, 2) }}</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${{ number_format($service->due_amount, 2) }}</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                            <a href="{{ route('services.show', $service) }}" class="text-blue-600 hover:text-blue-900">View</a>
-                        </td>
+                        <td class="fw-medium">{{ $service->service_name }}</td>
+                        <td>{{ $service->serviceType?->name ?? '—' }}</td>
+                        <td>{{ currency_format($service->net_amount, $service->currency ?? 'GBP') }}</td>
+                        <td>{{ currency_format($service->due_amount, $service->currency ?? 'GBP') }}</td>
+                        <td class="fw-medium text-success">{{ currency_format($service->profit_in_service_currency, $service->currency ?? 'GBP') }}</td>
+                        <td><a href="{{ route('services.show', $service) }}" class="btn btn-sm btn-outline-primary">View</a></td>
                     </tr>
                     @empty
                     <tr>
-                        <td colspan="5" class="px-6 py-4 text-center text-sm text-gray-500">No services found</td>
+                        <td colspan="6" class="text-center text-muted py-4">No services found</td>
                     </tr>
                     @endforelse
                 </tbody>
@@ -100,4 +131,3 @@
     </div>
 </div>
 @endsection
-

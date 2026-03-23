@@ -61,22 +61,42 @@ class PaymentController extends Controller
             'service_id' => 'required|exists:services,id',
             'client_id' => 'required|exists:clients,id',
             'amount' => 'required|numeric|min:0.01',
+            'discount' => 'nullable|numeric|min:0',
+            'currency' => 'nullable|string|in:GBP,USD,EUR,BDT',
             'payment_date' => 'required|date',
             'payment_method' => 'nullable|string|max:100',
             'transaction_reference' => 'nullable|string|max:255',
             'notes' => 'nullable|string',
         ]);
 
+        $service = Service::findOrFail($validated['service_id']);
+        $validated['discount'] = $validated['discount'] ?? 0;
+        $dueAmount = (float) $service->due_amount;
+        if ($validated['amount'] + $validated['discount'] > $dueAmount) {
+            return redirect()->back()
+                ->withInput()
+                ->withErrors(['amount' => 'Amount + Discount cannot exceed the due amount (' . currency_format($dueAmount, $service->currency ?? 'GBP') . ').']);
+        }
+
+        $validated['currency'] = $validated['currency'] ?? $service->currency ?? 'GBP';
+
         DB::transaction(function () use ($validated) {
             $payment = Payment::create($validated);
 
-            // Update service paid amount
+            // Update service paid amount and discount
             $service = Service::findOrFail($validated['service_id']);
             $service->increment('paid_amount', $validated['amount']);
+            if ($validated['discount'] > 0) {
+                $service->increment('discount', $validated['discount']);
+            }
+            if (!$service->client_id) {
+                $service->update(['client_id' => $validated['client_id']]);
+            }
 
-            // Send payment confirmation email
+            // Send payment confirmation email (client from payment)
+            $client = \App\Models\Client::find($validated['client_id']);
+            if ($client) {
             try {
-                $client = $service->client;
                 Mail::to($client->email)->send(new PaymentConfirmationMail($payment, $service, $client));
                 
                 $payment->update(['email_sent' => true]);
@@ -102,6 +122,7 @@ class PaymentController extends Controller
                     'status' => 'failed',
                     'error_message' => $e->getMessage(),
                 ]);
+            }
             }
         });
 
@@ -142,30 +163,49 @@ class PaymentController extends Controller
             'service_id' => 'required|exists:services,id',
             'client_id' => 'required|exists:clients,id',
             'amount' => 'required|numeric|min:0.01',
+            'discount' => 'nullable|numeric|min:0',
+            'currency' => 'nullable|string|in:GBP,USD,EUR,BDT',
             'payment_date' => 'required|date',
             'payment_method' => 'nullable|string|max:100',
             'transaction_reference' => 'nullable|string|max:255',
             'notes' => 'nullable|string',
         ]);
+        $validated['discount'] = $validated['discount'] ?? 0;
+
+        $service = Service::find($validated['service_id']);
+        $validated['currency'] = $validated['currency'] ?? $service?->currency ?? 'GBP';
+
+        // For validation: if same service, due = current due + old amount + old discount - new amount - new discount
+        $oldService = $payment->service;
+        $availableDue = (float) $oldService->due_amount + (float) $payment->amount + (float) ($payment->discount ?? 0);
+        if ($validated['service_id'] != $payment->service_id) {
+            $availableDue = (float) Service::findOrFail($validated['service_id'])->due_amount;
+        }
+        if ($validated['amount'] + $validated['discount'] > $availableDue) {
+            return redirect()->back()->withInput()
+                ->withErrors(['amount' => 'Amount + Discount cannot exceed the due amount (' . currency_format($availableDue, $service->currency ?? 'GBP') . ').']);
+        }
 
         DB::transaction(function () use ($validated, $payment) {
-            $oldAmount = $payment->amount;
+            $oldAmount = (float) $payment->amount;
+            $oldDiscount = (float) ($payment->discount ?? 0);
             $oldServiceId = $payment->service_id;
-            
+
             $payment->update($validated);
 
-            // Update old service paid amount
-            if ($oldServiceId != $validated['service_id']) {
-                $oldService = Service::findOrFail($oldServiceId);
-                $oldService->decrement('paid_amount', $oldAmount);
-            } else {
-                $oldService = Service::findOrFail($oldServiceId);
-                $oldService->decrement('paid_amount', $oldAmount);
+            // Revert old service
+            $oldService = Service::findOrFail($oldServiceId);
+            $oldService->decrement('paid_amount', $oldAmount);
+            if ($oldDiscount > 0) {
+                $oldService->decrement('discount', $oldDiscount);
             }
 
-            // Update new service paid amount
+            // Apply to (possibly new) service
             $service = Service::findOrFail($validated['service_id']);
             $service->increment('paid_amount', $validated['amount']);
+            if ($validated['discount'] > 0) {
+                $service->increment('discount', $validated['discount']);
+            }
         });
 
         return redirect()->route('payments.show', $payment)
@@ -180,6 +220,9 @@ class PaymentController extends Controller
         DB::transaction(function () use ($payment) {
             $service = $payment->service;
             $service->decrement('paid_amount', $payment->amount);
+            if (($payment->discount ?? 0) > 0) {
+                $service->decrement('discount', $payment->discount);
+            }
             $payment->delete();
         });
 

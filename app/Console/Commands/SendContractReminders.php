@@ -38,7 +38,7 @@ class SendContractReminders extends Command
         foreach ($reminderDays as $days) {
             $targetDate = Carbon::now()->addDays($days)->format('Y-m-d');
             
-            $services = Service::where('service_type', 'web_mobile_dev')
+            $services = Service::whereHas('serviceType', fn($q) => $q->where('form_section', 'project_based'))
                 ->where('is_active', true)
                 ->whereNotNull('contract_end_date')
                 ->whereDate('contract_end_date', $targetDate)

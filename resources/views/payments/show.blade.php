@@ -3,43 +3,50 @@
 @section('title', 'Payment Details')
 
 @section('content')
-<div class="mb-6">
-    <h1 class="text-3xl font-bold text-gray-900">Payment Details</h1>
+<div class="mb-4">
+    <h1 class="h3 fw-bold text-dark">Payment Details</h1>
 </div>
 
-<div class="bg-white shadow rounded-lg p-6">
-    <dl class="grid grid-cols-1 gap-x-4 gap-y-6 sm:grid-cols-2">
-        <div>
-            <dt class="text-sm font-medium text-gray-500">Client</dt>
-            <dd class="mt-1 text-sm text-gray-900">{{ $payment->client->company_name }}</dd>
+<div class="card border-0 shadow-sm">
+    <div class="card-body p-4">
+        <div class="row g-3">
+            <div class="col-sm-6">
+                <p class="text-muted small mb-0">Client</p>
+                <p class="mb-0 fw-medium">{{ $payment->client->company_name }}</p>
+            </div>
+            <div class="col-sm-6">
+                <p class="text-muted small mb-0">Service</p>
+                <p class="mb-0 fw-medium">{{ $payment->service->service_name }}</p>
+            </div>
+            <div class="col-sm-6">
+                <p class="text-muted small mb-0">Amount</p>
+                <p class="mb-0 fs-5 fw-bold">{{ currency_format($payment->amount, $payment->currency ?? 'GBP') }}</p>
+            </div>
+            @if(($payment->discount ?? 0) > 0)
+            <div class="col-sm-6">
+                <p class="text-muted small mb-0">Discount (waived)</p>
+                <p class="mb-0 fw-medium text-success">−{{ currency_format($payment->discount, $payment->currency ?? 'GBP') }}</p>
+            </div>
+            @endif
+            <div class="col-sm-6">
+                <p class="text-muted small mb-0">Payment Date</p>
+                <p class="mb-0">{{ $payment->payment_date->format('M d, Y') }}</p>
+            </div>
+            <div class="col-sm-6">
+                <p class="text-muted small mb-0">Payment Method</p>
+                <p class="mb-0">{{ $payment->payment_method ?? 'N/A' }}</p>
+            </div>
+            <div class="col-sm-6">
+                <p class="text-muted small mb-0">Transaction Reference</p>
+                <p class="mb-0">{{ $payment->transaction_reference ?? 'N/A' }}</p>
+            </div>
+            @if($payment->notes)
+            <div class="col-12">
+                <p class="text-muted small mb-0">Notes</p>
+                <p class="mb-0">{{ $payment->notes }}</p>
+            </div>
+            @endif
         </div>
-        <div>
-            <dt class="text-sm font-medium text-gray-500">Service</dt>
-            <dd class="mt-1 text-sm text-gray-900">{{ $payment->service->service_name }}</dd>
-        </div>
-        <div>
-            <dt class="text-sm font-medium text-gray-500">Amount</dt>
-            <dd class="mt-1 text-sm text-gray-900">${{ number_format($payment->amount, 2) }}</dd>
-        </div>
-        <div>
-            <dt class="text-sm font-medium text-gray-500">Payment Date</dt>
-            <dd class="mt-1 text-sm text-gray-900">{{ $payment->payment_date->format('M d, Y') }}</dd>
-        </div>
-        <div>
-            <dt class="text-sm font-medium text-gray-500">Payment Method</dt>
-            <dd class="mt-1 text-sm text-gray-900">{{ $payment->payment_method ?? 'N/A' }}</dd>
-        </div>
-        <div>
-            <dt class="text-sm font-medium text-gray-500">Transaction Reference</dt>
-            <dd class="mt-1 text-sm text-gray-900">{{ $payment->transaction_reference ?? 'N/A' }}</dd>
-        </div>
-        @if($payment->notes)
-        <div class="sm:col-span-2">
-            <dt class="text-sm font-medium text-gray-500">Notes</dt>
-            <dd class="mt-1 text-sm text-gray-900">{{ $payment->notes }}</dd>
-        </div>
-        @endif
-    </dl>
+    </div>
 </div>
 @endsection
-

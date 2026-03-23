@@ -11,6 +11,8 @@ class Payment extends Model
         'service_id',
         'client_id',
         'amount',
+        'discount',
+        'currency',
         'payment_date',
         'payment_method',
         'transaction_reference',
@@ -20,6 +22,7 @@ class Payment extends Model
 
     protected $casts = [
         'amount' => 'decimal:2',
+        'discount' => 'decimal:2',
         'payment_date' => 'date',
         'email_sent' => 'boolean',
     ];

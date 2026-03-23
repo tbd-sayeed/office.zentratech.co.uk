@@ -3,48 +3,82 @@
 @section('title', 'Services')
 
 @section('content')
-<div class="mb-6 flex justify-between items-center">
-    <h1 class="text-3xl font-bold text-gray-900">Services</h1>
-    <a href="{{ route('services.create') }}" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
-        Add New Service
-    </a>
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1 class="h3 mb-0 fw-bold text-dark">Services</h1>
+    <a href="{{ route('services.create') }}" class="btn btn-primary">Add New Service</a>
 </div>
 
-<div class="bg-white shadow overflow-hidden sm:rounded-md">
-    <table class="min-w-full divide-y divide-gray-200">
-        <thead class="bg-gray-50">
-            <tr>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Service</th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Client</th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Type</th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Amount</th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Due</th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
-            </tr>
-        </thead>
-        <tbody class="bg-white divide-y divide-gray-200">
-            @forelse($services as $service)
-            <tr>
-                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ $service->service_name }}</td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $service->client->company_name }}</td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ ucfirst(str_replace('_', ' ', $service->service_type)) }}</td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${{ number_format($service->total_amount, 2) }}</td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${{ number_format($service->due_amount, 2) }}</td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                    <a href="{{ route('services.show', $service) }}" class="text-blue-600 hover:text-blue-900">View</a>
-                </td>
-            </tr>
-            @empty
-            <tr>
-                <td colspan="6" class="px-6 py-4 text-center text-sm text-gray-500">No services found</td>
-            </tr>
-            @endforelse
-        </tbody>
-    </table>
+<div class="card border-0 shadow-sm mb-4">
+    <div class="card-body py-3">
+        <form method="GET" action="{{ route('services.index') }}" class="row g-2 align-items-end">
+            <div class="col-md-4">
+                <label for="client_id" class="form-label small mb-0">Filter by Client</label>
+                <select name="client_id" id="client_id" class="form-select form-select-sm">
+                    <option value="">All Clients</option>
+                    @foreach($clients as $client)
+                    <option value="{{ $client->id }}" {{ request('client_id') == $client->id ? 'selected' : '' }}>{{ $client->company_name }}</option>
+                    @endforeach
+                </select>
+            </div>
+            <div class="col-md-4">
+                <label for="service_type_id" class="form-label small mb-0">Filter by Service Type</label>
+                <select name="service_type_id" id="service_type_id" class="form-select form-select-sm">
+                    <option value="">All Types</option>
+                    @foreach($serviceTypes as $st)
+                    <option value="{{ $st->id }}" {{ request('service_type_id') == $st->id ? 'selected' : '' }}>{{ $st->name }}</option>
+                    @endforeach
+                </select>
+            </div>
+            <div class="col-md-2">
+                <button type="submit" class="btn btn-primary btn-sm w-100">Filter</button>
+            </div>
+            @if(request()->hasAny(['client_id', 'service_type_id']))
+            <div class="col-md-2">
+                <a href="{{ route('services.index') }}" class="btn btn-outline-secondary btn-sm w-100">Clear</a>
+            </div>
+            @endif
+        </form>
+    </div>
+</div>
+
+<div class="card border-0 shadow-sm">
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th>Service</th>
+                        <th>Client</th>
+                        <th>Type</th>
+                        <th>Net Amount</th>
+                        <th>Due</th>
+                        <th>Profit</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @forelse($services as $service)
+                    <tr>
+                        <td class="fw-medium">{{ $service->service_name }}</td>
+                        <td>{{ $service->client?->company_name ?? '—' }}</td>
+                        <td>{{ $service->serviceType?->name ?? '—' }}</td>
+                        <td>{{ currency_format($service->net_amount, $service->currency ?? 'GBP') }}</td>
+                        <td>{{ currency_format($service->due_amount, $service->currency ?? 'GBP') }}</td>
+                        <td class="fw-medium text-success">{{ currency_format($service->profit_in_service_currency, $service->currency ?? 'GBP') }}</td>
+                        <td><a href="{{ route('services.show', $service) }}" class="btn btn-sm btn-outline-primary">View</a></td>
+                    </tr>
+                    @empty
+                    <tr>
+                        <td colspan="7" class="text-center text-muted py-4">No services found</td>
+                    </tr>
+                    @endforelse
+                </tbody>
+            </table>
+        </div>
+    </div>
 </div>
 
 <div class="mt-4">
     {{ $services->links() }}
 </div>
 @endsection
-

@@ -3,148 +3,175 @@
 @section('title', 'Edit Service')
 
 @section('content')
-<div class="mb-6">
-    <h1 class="text-3xl font-bold text-gray-900">Edit Service</h1>
+<div class="mb-4">
+    <h1 class="h3 fw-bold text-dark">Edit Service</h1>
 </div>
 
-<form method="POST" action="{{ route('services.update', $service) }}" class="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4">
-    @csrf
-    @method('PUT')
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div>
-            <label class="block text-gray-700 text-sm font-bold mb-2" for="client_id">Client *</label>
-            <select name="client_id" id="client_id" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" required>
-                @foreach($clients as $client)
-                <option value="{{ $client->id }}" {{ old('client_id', $service->client_id) == $client->id ? 'selected' : '' }}>{{ $client->company_name }}</option>
-                @endforeach
-            </select>
-        </div>
-        <div>
-            <label class="block text-gray-700 text-sm font-bold mb-2" for="service_type">Service Type *</label>
-            <select name="service_type" id="service_type" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" required>
-                <option value="domain_hosting" {{ old('service_type', $service->service_type) == 'domain_hosting' ? 'selected' : '' }}>Domain & Hosting</option>
-                <option value="web_mobile_dev" {{ old('service_type', $service->service_type) == 'web_mobile_dev' ? 'selected' : '' }}>Web/Mobile Development</option>
-                <option value="custom" {{ old('service_type', $service->service_type) == 'custom' ? 'selected' : '' }}>Custom Service</option>
-            </select>
-        </div>
-        <div>
-            <label class="block text-gray-700 text-sm font-bold mb-2" for="service_name">Service Name *</label>
-            <input class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="service_name" name="service_name" type="text" value="{{ old('service_name', $service->service_name) }}" required>
-        </div>
-        <div>
-            <label class="block text-gray-700 text-sm font-bold mb-2" for="total_amount">Total Amount *</label>
-            <input class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="total_amount" name="total_amount" type="number" step="0.01" value="{{ old('total_amount', $service->total_amount) }}" required>
-        </div>
-        <div>
-            <label class="block text-gray-700 text-sm font-bold mb-2" for="paid_amount">Paid Amount</label>
-            <input class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="paid_amount" name="paid_amount" type="number" step="0.01" value="{{ old('paid_amount', $service->paid_amount) }}">
-        </div>
-        <div>
-            <label class="block text-gray-700 text-sm font-bold mb-2" for="start_date">Start Date *</label>
-            <input class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="start_date" name="start_date" type="date" value="{{ old('start_date', $service->start_date->format('Y-m-d')) }}" required>
-        </div>
-        <div>
-            <label class="flex items-center">
-                <input type="checkbox" name="is_active" value="1" {{ old('is_active', $service->is_active) ? 'checked' : '' }} class="form-checkbox">
-                <span class="ml-2 text-gray-700">Active</span>
-            </label>
-        </div>
-
-        <!-- Domain & Hosting Fields -->
-        <div id="domain_fields" class="md:col-span-2" style="display: {{ old('service_type', $service->service_type) == 'domain_hosting' ? 'block' : 'none' }};">
-            <h3 class="text-lg font-semibold text-gray-800 mb-4 border-b pb-2">Domain & Hosting Details</h3>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                    <label class="block text-gray-700 text-sm font-bold mb-2" for="domain_name">Domain Name</label>
-                    <input class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="domain_name" name="domain_name" type="text" value="{{ old('domain_name', $service->domain_name) }}" placeholder="example.com">
-                </div>
-                <div>
-                    <label class="block text-gray-700 text-sm font-bold mb-2" for="hosting_package">Hosting Package</label>
-                    <input class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="hosting_package" name="hosting_package" type="text" value="{{ old('hosting_package', $service->hosting_package) }}" placeholder="Basic, Premium, etc.">
-                </div>
-                <div>
-                    <label class="block text-gray-700 text-sm font-bold mb-2" for="expiration_date">Expiration Date</label>
-                    <input class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="expiration_date" name="expiration_date" type="date" value="{{ old('expiration_date', $service->expiration_date ? $service->expiration_date->format('Y-m-d') : '') }}">
-                </div>
-                <div>
-                    <label class="block text-gray-700 text-sm font-bold mb-2" for="provider_name">Provider Name</label>
-                    <input class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="provider_name" name="provider_name" type="text" value="{{ old('provider_name', $service->provider_name) }}" placeholder="Namecheap, GoDaddy, cPanel, Cloudways, etc.">
-                </div>
-                <div class="md:col-span-2">
-                    <label class="block text-gray-700 text-sm font-bold mb-2" for="credentials">Credentials / Notes</label>
-                    <textarea class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="credentials" name="credentials" rows="3" placeholder="Store login credentials or important notes here">{{ old('credentials', $service->credentials) }}</textarea>
-                    <p class="text-xs text-gray-500 mt-1">Note: Store credentials securely. Consider encrypting sensitive information.</p>
-                </div>
-            </div>
-        </div>
-
-        <!-- Web/Mobile Development Fields -->
-        <div id="web_mobile_fields" class="md:col-span-2" style="display: {{ old('service_type', $service->service_type) == 'web_mobile_dev' ? 'block' : 'none' }};">
-            <h3 class="text-lg font-semibold text-gray-800 mb-4 border-b pb-2">Web/Mobile Development Details</h3>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                    <label class="block text-gray-700 text-sm font-bold mb-2" for="project_type">Project Type</label>
-                    <select name="project_type" id="project_type" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
-                        <option value="">Select Type</option>
-                        <option value="website" {{ old('project_type', $service->project_type) == 'website' ? 'selected' : '' }}>Website</option>
-                        <option value="mobile_app" {{ old('project_type', $service->project_type) == 'mobile_app' ? 'selected' : '' }}>Mobile App</option>
+<div class="card border-0 shadow-sm">
+    <div class="card-body p-4">
+        <form method="POST" action="{{ route('services.update', $service) }}">
+            @csrf
+            @method('PUT')
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <label for="client_id" class="form-label fw-medium">Client <span class="text-danger">*</span></label>
+                    <select name="client_id" id="client_id" class="form-select" required>
+                        @foreach($clients as $client)
+                        <option value="{{ $client->id }}" {{ old('client_id', $service->client_id) == $client->id ? 'selected' : '' }}>{{ $client->company_name }} ({{ $client->contact_person }})</option>
+                        @endforeach
                     </select>
                 </div>
-                <div>
-                    <label class="block text-gray-700 text-sm font-bold mb-2" for="delivery_date">Delivery Date</label>
-                    <input class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="delivery_date" name="delivery_date" type="date" value="{{ old('delivery_date', $service->delivery_date ? $service->delivery_date->format('Y-m-d') : '') }}">
+                <div class="col-md-6">
+                    <label for="service_type_id" class="form-label fw-medium">Service Type <span class="text-danger">*</span></label>
+                    <select name="service_type_id" id="service_type_id" class="form-select" required>
+                        @foreach($serviceTypes as $st)
+                        <option value="{{ $st->id }}" data-form-section="{{ $st->form_section }}" {{ old('service_type_id', $service->service_type_id) == $st->id ? 'selected' : '' }}>{{ $st->name }}</option>
+                        @endforeach
+                    </select>
                 </div>
-                <div>
-                    <label class="block text-gray-700 text-sm font-bold mb-2" for="contract_start_date">Contract Start Date</label>
-                    <input class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="contract_start_date" name="contract_start_date" type="date" value="{{ old('contract_start_date', $service->contract_start_date ? $service->contract_start_date->format('Y-m-d') : '') }}">
+                <div class="col-md-6">
+                    <label for="service_name" class="form-label fw-medium">Service Name <span class="text-danger">*</span></label>
+                    <input type="text" class="form-control" id="service_name" name="service_name" value="{{ old('service_name', $service->service_name) }}" required>
                 </div>
-                <div>
-                    <label class="block text-gray-700 text-sm font-bold mb-2" for="contract_end_date">Contract End Date</label>
-                    <input class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="contract_end_date" name="contract_end_date" type="date" value="{{ old('contract_end_date', $service->contract_end_date ? $service->contract_end_date->format('Y-m-d') : '') }}">
+                <div class="col-md-6">
+                    <label for="currency" class="form-label fw-medium">Contract Currency</label>
+                    @include('partials.currency-select', ['name' => 'currency', 'value' => old('currency', $service->currency ?? 'GBP')])
+                </div>
+                <div class="col-md-6">
+                    <label for="total_amount" class="form-label fw-medium">Total Amount <span class="text-danger">*</span></label>
+                    <input type="number" step="0.01" class="form-control" id="total_amount" name="total_amount" value="{{ old('total_amount', $service->total_amount) }}" required>
+                </div>
+                <div class="col-md-6">
+                    <label for="paid_amount" class="form-label fw-medium">Paid Amount</label>
+                    <input type="number" step="0.01" class="form-control" id="paid_amount" name="paid_amount" value="{{ old('paid_amount', $service->paid_amount) }}">
+                </div>
+                <div class="col-md-6">
+                    <label for="start_date" class="form-label fw-medium">Start Date <span class="text-danger">*</span></label>
+                    <input type="date" class="form-control" id="start_date" name="start_date" value="{{ old('start_date', $service->start_date->format('Y-m-d')) }}" required>
+                </div>
+                <div class="col-12">
+                    <div class="form-check"><input type="checkbox" name="is_active" value="1" class="form-check-input" id="is_active" {{ old('is_active', $service->is_active) ? 'checked' : '' }}><label class="form-check-label" for="is_active">Active</label></div>
+                </div>
+
+                <div id="domain_fields" class="col-12 d-none">
+                    <hr class="my-3">
+                    <h6 class="fw-semibold mb-3">Domain & Hosting Details</h6>
+                    <div class="row g-3">
+                        <div class="col-md-6"><label for="domain_name" class="form-label">Domain Name</label><input type="text" class="form-control" id="domain_name" name="domain_name" value="{{ old('domain_name', $service->domain_name) }}"></div>
+                        <div class="col-md-6"><label for="hosting_package" class="form-label">Hosting Package</label><input type="text" class="form-control" id="hosting_package" name="hosting_package" value="{{ old('hosting_package', $service->hosting_package) }}"></div>
+                        <div class="col-md-6"><label for="expiration_date" class="form-label">Expiration Date</label><input type="date" class="form-control" id="expiration_date" name="expiration_date" value="{{ old('expiration_date', $service->expiration_date?->format('Y-m-d')) }}"></div>
+                        <div class="col-md-6"><label for="provider_name" class="form-label">Provider</label><input type="text" class="form-control" id="provider_name" name="provider_name" value="{{ old('provider_name', $service->provider_name) }}"></div>
+                        <div class="col-12"><label for="credentials" class="form-label">Credentials / Notes</label><textarea class="form-control" id="credentials" name="credentials" rows="2">{{ old('credentials', $service->credentials) }}</textarea></div>
+                    </div>
+                </div>
+
+                <div id="web_mobile_fields" class="col-12 d-none">
+                    <hr class="my-3">
+                    <h6 class="fw-semibold mb-3">Project & Contract Details</h6>
+                    <div class="row g-3">
+                        <div class="col-md-6"><label for="project_type_id" class="form-label">Project Type</label>
+                            <select name="project_type_id" id="project_type_id" class="form-select">
+                                <option value="">Select</option>
+                                @foreach($projectTypes as $pt)
+                                <option value="{{ $pt->id }}" {{ old('project_type_id', $service->project_type_id) == $pt->id ? 'selected' : '' }}>{{ $pt->name }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="col-md-6"><label for="delivery_date" class="form-label">Delivery Date</label><input type="date" class="form-control" id="delivery_date" name="delivery_date" value="{{ old('delivery_date', $service->delivery_date?->format('Y-m-d')) }}"></div>
+                        <div class="col-md-6"><label for="contract_start_date" class="form-label">Contract Start</label><input type="date" class="form-control" id="contract_start_date" name="contract_start_date" value="{{ old('contract_start_date', $service->contract_start_date?->format('Y-m-d')) }}"></div>
+                        <div class="col-md-6"><label for="contract_end_date" class="form-label">Contract End</label><input type="date" class="form-control" id="contract_end_date" name="contract_end_date" value="{{ old('contract_end_date', $service->contract_end_date?->format('Y-m-d')) }}"></div>
+                    </div>
+                </div>
+
+                <div id="custom_fields" class="col-12 d-none">
+                    <hr class="my-3">
+                    <h6 class="fw-semibold mb-3">Custom Service Details</h6>
+                    <div><label for="custom_service_type" class="form-label">Service Type</label><input type="text" class="form-control" id="custom_service_type" name="custom_service_type" value="{{ old('custom_service_type', $service->custom_service_type) }}"></div>
+                </div>
+
+                <div class="col-12">
+                    <label for="notes" class="form-label fw-medium">General Notes</label>
+                    <textarea class="form-control" id="notes" name="notes" rows="2">{{ old('notes', $service->notes) }}</textarea>
+                </div>
+
+                <div class="col-12">
+                    <hr class="my-3">
+                    <h6 class="fw-semibold mb-3">Team Members Assigned to This Service</h6>
+                    <p class="text-muted small mb-3">Assign team members and the agreed amount you'll pay them</p>
+                    <div id="team_assignments">
+                        @php $assignments = old('team_assignments', $service->teamAssignments->map(fn($a) => ['team_member_id' => $a->team_member_id, 'agreed_amount' => $a->agreed_amount, 'currency' => $a->currency ?? 'USD', 'notes' => $a->notes])->values()->toArray()); @endphp
+                        @forelse($assignments as $idx => $ta)
+                        <div class="row g-2 mb-2 team-assignment-row">
+                            <div class="col-md-4">
+                                <select name="team_assignments[{{ $idx }}][team_member_id]" class="form-select form-select-sm">
+                                    <option value="">Select team member</option>
+                                    @foreach($teamMembers as $tm)
+                                    <option value="{{ $tm->id }}" {{ ($ta['team_member_id'] ?? '') == $tm->id ? 'selected' : '' }}>{{ $tm->name }}{{ $tm->role ? ' (' . $tm->role . ')' : '' }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            <div class="col-md-3">
+                                <input type="number" step="0.01" name="team_assignments[{{ $idx }}][agreed_amount]" class="form-control form-control-sm" value="{{ $ta['agreed_amount'] ?? 0 }}">
+                            </div>
+                            <div class="col-md-2">
+                                @include('partials.currency-select', ['name' => 'team_assignments[' . $idx . '][currency]', 'value' => $ta['currency'] ?? 'USD', 'class' => 'form-select-sm'])
+                            </div>
+                            <div class="col-md-2">
+                                <input type="text" name="team_assignments[{{ $idx }}][notes]" class="form-control form-control-sm" placeholder="Notes" value="{{ $ta['notes'] ?? '' }}">
+                            </div>
+                            <div class="col-md-1"><button type="button" class="btn btn-sm btn-outline-danger remove-row">×</button></div>
+                        </div>
+                        @empty
+                        <div class="row g-2 mb-2 team-assignment-row">
+                            <div class="col-md-4">
+                                <select name="team_assignments[0][team_member_id]" class="form-select form-select-sm">
+                                    <option value="">Select team member</option>
+                                    @foreach($teamMembers as $tm)
+                                    <option value="{{ $tm->id }}">{{ $tm->name }}{{ $tm->role ? ' (' . $tm->role . ')' : '' }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            <div class="col-md-3"><input type="number" step="0.01" name="team_assignments[0][agreed_amount]" class="form-control form-control-sm" value="0"></div>
+                            <div class="col-md-2">@include('partials.currency-select', ['name' => 'team_assignments[0][currency]', 'value' => 'USD', 'class' => 'form-select-sm'])</div>
+                            <div class="col-md-2"><input type="text" name="team_assignments[0][notes]" class="form-control form-control-sm" placeholder="Notes"></div>
+                            <div class="col-md-1"><button type="button" class="btn btn-sm btn-outline-danger remove-row" style="visibility:hidden">×</button></div>
+                        </div>
+                        @endforelse
+                    </div>
+                    <button type="button" class="btn btn-sm btn-outline-primary" id="add_team_row">+ Add Team Member</button>
                 </div>
             </div>
-        </div>
-
-        <!-- Custom Service Fields -->
-        <div id="custom_fields" class="md:col-span-2" style="display: {{ old('service_type', $service->service_type) == 'custom' ? 'block' : 'none' }};">
-            <h3 class="text-lg font-semibold text-gray-800 mb-4 border-b pb-2">Custom Service Details</h3>
-            <div>
-                <label class="block text-gray-700 text-sm font-bold mb-2" for="custom_service_type">Service Type</label>
-                <input class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="custom_service_type" name="custom_service_type" type="text" value="{{ old('custom_service_type', $service->custom_service_type) }}" placeholder="SEO, Maintenance, Retainer, Branding, etc.">
+            <div class="d-flex gap-2 mt-4">
+                <a href="{{ route('services.show', $service) }}" class="btn btn-outline-secondary">Cancel</a>
+                <button type="submit" class="btn btn-primary">Update Service</button>
             </div>
-        </div>
-
-        <div class="md:col-span-2">
-            <label class="block text-gray-700 text-sm font-bold mb-2" for="notes">General Notes</label>
-            <textarea class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="notes" name="notes" rows="3" placeholder="Additional notes about this service">{{ old('notes', $service->notes) }}</textarea>
-        </div>
+        </form>
     </div>
-    <div class="mt-6 flex items-center justify-end">
-        <a href="{{ route('services.show', $service) }}" class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded mr-4">Cancel</a>
-        <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">Update Service</button>
-    </div>
-</form>
+</div>
 
 <script>
-document.getElementById('service_type').addEventListener('change', function() {
-    const domainFields = document.getElementById('domain_fields');
-    const webMobileFields = document.getElementById('web_mobile_fields');
-    const customFields = document.getElementById('custom_fields');
-    
-    // Hide all fields first
-    domainFields.style.display = 'none';
-    webMobileFields.style.display = 'none';
-    customFields.style.display = 'none';
-    
-    // Show relevant fields based on selection
-    if (this.value === 'domain_hosting') {
-        domainFields.style.display = 'block';
-    } else if (this.value === 'web_mobile_dev') {
-        webMobileFields.style.display = 'block';
-    } else if (this.value === 'custom') {
-        customFields.style.display = 'block';
-    }
+document.getElementById('service_type_id').addEventListener('change', function() {
+    ['domain_fields','web_mobile_fields','custom_fields'].forEach(id => document.getElementById(id).classList.add('d-none'));
+    const opt = this.options[this.selectedIndex];
+    const formSection = opt ? opt.dataset.formSection : '';
+    if (formSection === 'domain_hosting') document.getElementById('domain_fields').classList.remove('d-none');
+    else if (formSection === 'project_based') document.getElementById('web_mobile_fields').classList.remove('d-none');
+    else if (formSection === 'custom') document.getElementById('custom_fields').classList.remove('d-none');
+});
+document.addEventListener('DOMContentLoaded', () => document.getElementById('service_type_id').dispatchEvent(new Event('change')));
+
+const teamMembers = @json($teamMembers->map(fn($t) => ['id' => $t->id, 'name' => $t->name . ($t->role ? ' (' . $t->role . ')' : '')]));
+let rowIdx = {{ count($assignments) ?: 1 }};
+document.getElementById('add_team_row').addEventListener('click', function() {
+    const row = document.createElement('div');
+    row.className = 'row g-2 mb-2 team-assignment-row';
+    row.innerHTML = '<div class="col-md-4"><select name="team_assignments[' + rowIdx + '][team_member_id]" class="form-select form-select-sm"><option value="">Select</option>' + teamMembers.map(t => '<option value="' + t.id + '">' + t.name + '</option>').join('') + '</select></div><div class="col-md-3"><input type="number" step="0.01" name="team_assignments[' + rowIdx + '][agreed_amount]" class="form-control form-control-sm" value="0"></div><div class="col-md-2"><select name="team_assignments[' + rowIdx + '][currency]" class="form-select form-select-sm"><option value="GBP">£ GBP</option><option value="USD" selected>$ USD</option><option value="EUR">€ EUR</option><option value="BDT">৳ BDT</option></select></div><div class="col-md-2"><input type="text" name="team_assignments[' + rowIdx + '][notes]" class="form-control form-control-sm"></div><div class="col-md-1"><button type="button" class="btn btn-sm btn-outline-danger remove-row">×</button></div>';
+    document.getElementById('team_assignments').appendChild(row);
+    row.querySelector('.remove-row').onclick = () => row.remove();
+    rowIdx++;
+});
+document.getElementById('team_assignments').addEventListener('click', function(e) {
+    if (e.target.classList.contains('remove-row')) e.target.closest('.team-assignment-row').remove();
 });
 </script>
 @endsection
-

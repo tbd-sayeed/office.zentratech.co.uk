@@ -3,163 +3,195 @@
 @section('title', $service->service_name)
 
 @section('content')
-<div class="mb-6 flex justify-between items-center">
+<div class="d-flex justify-content-between align-items-center mb-4">
     <div>
-        <h1 class="text-3xl font-bold text-gray-900">{{ $service->service_name }}</h1>
-        <p class="text-gray-600 mt-1">{{ $service->client->company_name }}</p>
+        <h1 class="h3 fw-bold text-dark mb-1">{{ $service->service_name }}</h1>
+        <p class="text-muted mb-0">{{ $service->client->company_name }}</p>
     </div>
-    <div class="flex space-x-2">
-        <a href="{{ route('services.edit', $service) }}" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">Edit</a>
-        <a href="{{ route('payments.create', ['service_id' => $service->id, 'client_id' => $service->client_id]) }}" class="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded">Add Payment</a>
+    <div class="d-flex gap-2">
+        <a href="{{ route('services.edit', $service) }}" class="btn btn-outline-primary">Edit</a>
+        <a href="{{ route('payments.create', ['service_id' => $service->id, 'client_id' => $service->client_id]) }}" class="btn btn-primary">Add Payment</a>
     </div>
 </div>
 
-<div class="bg-white shadow rounded-lg p-6 mb-6">
-    <h2 class="text-xl font-semibold mb-4">Service Details</h2>
-    <dl class="grid grid-cols-1 gap-x-4 gap-y-6 sm:grid-cols-2">
-        <div>
-            <dt class="text-sm font-medium text-gray-500">Service Type</dt>
-            <dd class="mt-1 text-sm text-gray-900">{{ ucfirst(str_replace('_', ' ', $service->service_type)) }}</dd>
-        </div>
-        <div>
-            <dt class="text-sm font-medium text-gray-500">Start Date</dt>
-            <dd class="mt-1 text-sm text-gray-900">{{ $service->start_date->format('M d, Y') }}</dd>
-        </div>
-        <div>
-            <dt class="text-sm font-medium text-gray-500">Total Amount</dt>
-            <dd class="mt-1 text-sm text-gray-900">${{ number_format($service->total_amount, 2) }}</dd>
-        </div>
-        <div>
-            <dt class="text-sm font-medium text-gray-500">Paid Amount</dt>
-            <dd class="mt-1 text-sm text-gray-900">${{ number_format($service->paid_amount, 2) }}</dd>
-        </div>
-        <div>
-            <dt class="text-sm font-medium text-gray-500">Due Amount</dt>
-            <dd class="mt-1 text-sm text-gray-900">${{ number_format($service->due_amount, 2) }}</dd>
-        </div>
-        <div>
-            <dt class="text-sm font-medium text-gray-500">Status</dt>
-            <dd class="mt-1">
-                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full {{ $service->is_active ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800' }}">
-                    {{ $service->is_active ? 'Active' : 'Inactive' }}
-                </span>
-            </dd>
-        </div>
-    </dl>
-
-    @if($service->service_type == 'domain_hosting')
-    <div class="mt-6 pt-6 border-t">
-        <h3 class="text-lg font-semibold mb-4">Domain & Hosting Details</h3>
-        <dl class="grid grid-cols-1 gap-x-4 gap-y-6 sm:grid-cols-2">
-            @if($service->domain_name)
-            <div>
-                <dt class="text-sm font-medium text-gray-500">Domain Name</dt>
-                <dd class="mt-1 text-sm text-gray-900">{{ $service->domain_name }}</dd>
+<div class="card border-0 shadow-sm mb-4">
+    <div class="card-header bg-white border-0 pt-4">
+        <h5 class="mb-0 fw-semibold">Service Details</h5>
+    </div>
+    <div class="card-body">
+        <div class="row g-3">
+            <div class="col-sm-6">
+                <p class="text-muted small mb-0">Service Type</p>
+                <p class="mb-0 fw-medium">{{ $service->serviceType?->name ?? '—' }}</p>
             </div>
+            <div class="col-sm-6">
+                <p class="text-muted small mb-0">Start Date</p>
+                <p class="mb-0">{{ $service->start_date->format('M d, Y') }}</p>
+            </div>
+            <div class="col-sm-6">
+                <p class="text-muted small mb-0">Total Amount</p>
+                <p class="mb-0 fw-medium">{{ currency_format($service->total_amount, $service->currency ?? 'GBP') }}</p>
+            </div>
+            @if(($service->discount ?? 0) > 0)
+            <div class="col-sm-6">
+                <p class="text-muted small mb-0">Discount</p>
+                <p class="mb-0 text-success">−{{ currency_format($service->discount, $service->currency ?? 'GBP') }}</p>
+            </div>
+            <div class="col-sm-6">
+                <p class="text-muted small mb-0">Net Amount</p>
+                <p class="mb-0 fw-medium">{{ currency_format($service->net_amount, $service->currency ?? 'GBP') }}</p>
+            </div>
+            @endif
+            <div class="col-sm-6">
+                <p class="text-muted small mb-0">Paid Amount</p>
+                <p class="mb-0">{{ currency_format($service->paid_amount, $service->currency ?? 'GBP') }}</p>
+            </div>
+            <div class="col-sm-6">
+                <p class="text-muted small mb-0">Due Amount</p>
+                <p class="mb-0 fw-medium">{{ currency_format($service->due_amount, $service->currency ?? 'GBP') }}</p>
+            </div>
+            <div class="col-sm-6">
+                <p class="text-muted small mb-0">Status</p>
+                <span class="badge {{ $service->is_active ? 'bg-success' : 'bg-secondary' }}">{{ $service->is_active ? 'Active' : 'Inactive' }}</span>
+            </div>
+        </div>
+
+        <hr class="my-4">
+        <h6 class="fw-semibold mb-3">ZentraTech Profit</h6>
+        <div class="row g-3">
+            <div class="col-sm-6">
+                <p class="text-muted small mb-0">Client Agreed (Net)</p>
+                <p class="mb-0 fw-medium">{{ currency_format($service->net_amount, $service->currency ?? 'GBP') }}</p>
+            </div>
+            <div class="col-sm-6">
+                <p class="text-muted small mb-0">Team Cost</p>
+                <p class="mb-0">
+                    @if($service->teamAssignments->count())
+                        @php $byCur = $service->teamAssignments->groupBy(fn($a) => $a->currency ?? 'USD')->map(fn($g) => $g->sum('agreed_amount')); @endphp
+                        {{ $byCur->map(fn($a,$c) => currency_format($a,$c))->implode(' + ') }}
+                    @else
+                        <span class="text-muted">— No team assigned</span>
+                    @endif
+                </p>
+            </div>
+            <div class="col-sm-6">
+                <p class="text-muted small mb-0">Profit</p>
+                <p class="mb-0 fs-5 fw-bold text-success">{{ currency_format($service->profit_in_service_currency, $service->currency ?? 'GBP') }}</p>
+                @if(!$service->teamAssignments->count())
+                    <small class="text-muted">Full amount (project done by ZentraTech)</small>
+                @endif
+            </div>
+        </div>
+
+        @if($service->serviceType?->form_section === 'domain_hosting')
+        <hr class="my-4">
+        <h6 class="fw-semibold mb-3">Domain & Hosting Details</h6>
+        <div class="row g-3">
+            @if($service->domain_name)
+            <div class="col-sm-6"><p class="text-muted small mb-0">Domain</p><p class="mb-0">{{ $service->domain_name }}</p></div>
             @endif
             @if($service->hosting_package)
-            <div>
-                <dt class="text-sm font-medium text-gray-500">Hosting Package</dt>
-                <dd class="mt-1 text-sm text-gray-900">{{ $service->hosting_package }}</dd>
-            </div>
+            <div class="col-sm-6"><p class="text-muted small mb-0">Hosting</p><p class="mb-0">{{ $service->hosting_package }}</p></div>
             @endif
             @if($service->expiration_date)
-            <div>
-                <dt class="text-sm font-medium text-gray-500">Expiration Date</dt>
-                <dd class="mt-1 text-sm text-gray-900">{{ $service->expiration_date->format('M d, Y') }}</dd>
-            </div>
+            <div class="col-sm-6"><p class="text-muted small mb-0">Expires</p><p class="mb-0">{{ $service->expiration_date->format('M d, Y') }}</p></div>
             @endif
             @if($service->provider_name)
-            <div>
-                <dt class="text-sm font-medium text-gray-500">Provider</dt>
-                <dd class="mt-1 text-sm text-gray-900">{{ $service->provider_name }}</dd>
-            </div>
+            <div class="col-sm-6"><p class="text-muted small mb-0">Provider</p><p class="mb-0">{{ $service->provider_name }}</p></div>
             @endif
             @if($service->credentials)
-            <div class="sm:col-span-2">
-                <dt class="text-sm font-medium text-gray-500">Credentials / Notes</dt>
-                <dd class="mt-1 text-sm text-gray-900 whitespace-pre-wrap">{{ $service->credentials }}</dd>
-            </div>
+            <div class="col-12"><p class="text-muted small mb-0">Credentials</p><p class="mb-0">{{ $service->credentials }}</p></div>
             @endif
-        </dl>
-    </div>
-    @endif
+        </div>
+        @endif
 
-    @if($service->service_type == 'web_mobile_dev')
-    <div class="mt-6 pt-6 border-t">
-        <h3 class="text-lg font-semibold mb-4">Web/Mobile Development Details</h3>
-        <dl class="grid grid-cols-1 gap-x-4 gap-y-6 sm:grid-cols-2">
-            @if($service->project_type)
-            <div>
-                <dt class="text-sm font-medium text-gray-500">Project Type</dt>
-                <dd class="mt-1 text-sm text-gray-900">{{ ucfirst(str_replace('_', ' ', $service->project_type)) }}</dd>
-            </div>
-            @endif
-            @if($service->delivery_date)
-            <div>
-                <dt class="text-sm font-medium text-gray-500">Delivery Date</dt>
-                <dd class="mt-1 text-sm text-gray-900">{{ $service->delivery_date->format('M d, Y') }}</dd>
-            </div>
-            @endif
-            @if($service->contract_start_date)
-            <div>
-                <dt class="text-sm font-medium text-gray-500">Contract Start Date</dt>
-                <dd class="mt-1 text-sm text-gray-900">{{ $service->contract_start_date->format('M d, Y') }}</dd>
-            </div>
-            @endif
-            @if($service->contract_end_date)
-            <div>
-                <dt class="text-sm font-medium text-gray-500">Contract End Date</dt>
-                <dd class="mt-1 text-sm text-gray-900">{{ $service->contract_end_date->format('M d, Y') }}</dd>
-            </div>
-            @endif
-        </dl>
-    </div>
-    @endif
+        @if($service->serviceType?->form_section === 'project_based' && ($service->projectType || $service->delivery_date || $service->contract_start_date || $service->contract_end_date))
+        <hr class="my-4">
+        <h6 class="fw-semibold mb-3">Project & Contract Details</h6>
+        <div class="row g-3">
+            @if($service->projectType)<div class="col-sm-6"><p class="text-muted small mb-0">Project Type</p><p class="mb-0">{{ $service->projectType->name }}</p></div>@endif
+            @if($service->delivery_date)<div class="col-sm-6"><p class="text-muted small mb-0">Delivery Date</p><p class="mb-0">{{ $service->delivery_date->format('M d, Y') }}</p></div>@endif
+            @if($service->contract_start_date)<div class="col-sm-6"><p class="text-muted small mb-0">Contract Start</p><p class="mb-0">{{ $service->contract_start_date->format('M d, Y') }}</p></div>@endif
+            @if($service->contract_end_date)<div class="col-sm-6"><p class="text-muted small mb-0">Contract End</p><p class="mb-0">{{ $service->contract_end_date->format('M d, Y') }}</p></div>@endif
+        </div>
+        @endif
 
-    @if($service->service_type == 'custom' && $service->custom_service_type)
-    <div class="mt-6 pt-6 border-t">
-        <h3 class="text-lg font-semibold mb-4">Custom Service Details</h3>
-        <dl class="grid grid-cols-1 gap-x-4 gap-y-6 sm:grid-cols-2">
-            <div>
-                <dt class="text-sm font-medium text-gray-500">Service Type</dt>
-                <dd class="mt-1 text-sm text-gray-900">{{ $service->custom_service_type }}</dd>
-            </div>
-        </dl>
-    </div>
-    @endif
+        @if($service->custom_service_type)
+        <hr class="my-4">
+        <h6 class="fw-semibold mb-3">Custom Service</h6>
+        <p class="mb-0">{{ $service->custom_service_type }}</p>
+        @endif
 
-    @if($service->notes)
-    <div class="mt-6 pt-6 border-t">
-        <h3 class="text-lg font-semibold mb-4">General Notes</h3>
-        <p class="text-sm text-gray-900 whitespace-pre-wrap">{{ $service->notes }}</p>
+        @if($service->notes)
+        <hr class="my-4">
+        <h6 class="fw-semibold mb-2">Notes</h6>
+        <p class="mb-0">{{ $service->notes }}</p>
+        @endif
     </div>
-    @endif
 </div>
 
-<div class="bg-white shadow rounded-lg">
-    <div class="px-4 py-5 sm:p-6">
-        <h2 class="text-xl font-semibold mb-4">Payments</h2>
-        <div class="overflow-x-auto">
-            <table class="min-w-full divide-y divide-gray-200">
-                <thead class="bg-gray-50">
+@if($service->teamAssignments->count())
+<div class="card border-0 shadow-sm mb-4">
+    <div class="card-header bg-white border-0 pt-4 d-flex justify-content-between align-items-center">
+        <h5 class="mb-0 fw-semibold">Team Members Assigned</h5>
+        <a href="{{ route('team-member-payments.create', ['service_id' => $service->id]) }}" class="btn btn-sm btn-primary">Record Payment to Team</a>
+    </div>
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover mb-0">
+                <thead class="table-light">
                     <tr>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Date</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Amount</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Method</th>
+                        <th>Team Member</th>
+                        <th>Note</th>
+                        <th>Agreed Amount</th>
+                        <th>Paid</th>
+                        <th>Due</th>
+                        <th></th>
                     </tr>
                 </thead>
-                <tbody class="bg-white divide-y divide-gray-200">
+                <tbody>
+                    @foreach($service->teamAssignments as $a)
+                    @php $assignCur = $a->currency ?? 'USD'; $paid = \App\Models\TeamMemberPayment::where('team_member_id', $a->team_member_id)->where('service_id', $service->id)->where('currency', $assignCur)->sum('amount'); $due = max(0, $a->agreed_amount - $paid); @endphp
+                    <tr>
+                        <td><a href="{{ route('team-members.show', $a->teamMember) }}">{{ $a->teamMember->name }}</a></td>
+                        <td class="text-muted small">{{ $a->notes ?? '—' }}</td>
+                        <td>{{ currency_format($a->agreed_amount, $a->currency ?? 'USD') }}</td>
+                        <td>{{ currency_format($paid, $assignCur) }}</td>
+                        <td class="{{ $due > 0 ? 'fw-semibold text-warning' : '' }}">{{ currency_format($due, $assignCur) }}</td>
+                        <td><a href="{{ route('team-member-payments.create', ['team_member_id' => $a->team_member_id, 'service_id' => $service->id]) }}" class="btn btn-sm btn-outline-primary">Pay</a></td>
+                    </tr>
+                    @endforeach
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+@endif
+
+<div class="card border-0 shadow-sm">
+    <div class="card-header bg-white border-0 pt-4">
+        <h5 class="mb-0 fw-semibold">Payments</h5>
+    </div>
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                    <tr><th>Date</th><th>Amount</th><th>Method</th></tr>
+                </thead>
+                <tbody>
                     @forelse($service->payments as $payment)
                     <tr>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ $payment->payment_date->format('M d, Y') }}</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${{ number_format($payment->amount, 2) }}</td>
-                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $payment->payment_method ?? 'N/A' }}</td>
+                        <td>{{ $payment->payment_date->format('M d, Y') }}</td>
+                        <td class="fw-medium">
+                            {{ currency_format($payment->amount, $payment->currency ?? 'GBP') }}
+                            @if(($payment->discount ?? 0) > 0)
+                                <span class="text-success small">(−{{ currency_format($payment->discount, $payment->currency ?? 'GBP') }} disc)</span>
+                            @endif
+                        </td>
+                        <td>{{ $payment->payment_method ?? 'N/A' }}</td>
                     </tr>
                     @empty
-                    <tr>
-                        <td colspan="3" class="px-6 py-4 text-center text-sm text-gray-500">No payments found</td>
-                    </tr>
+                    <tr><td colspan="3" class="text-center text-muted py-4">No payments found</td></tr>
                     @endforelse
                 </tbody>
             </table>
@@ -167,4 +199,3 @@
     </div>
 </div>
 @endsection
-

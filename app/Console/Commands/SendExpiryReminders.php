@@ -38,7 +38,7 @@ class SendExpiryReminders extends Command
         foreach ($reminderDays as $days) {
             $targetDate = Carbon::now()->addDays($days)->format('Y-m-d');
             
-            $services = Service::where('service_type', 'domain_hosting')
+            $services = Service::whereHas('serviceType', fn($q) => $q->where('form_section', 'domain_hosting'))
                 ->where('is_active', true)
                 ->whereNotNull('expiration_date')
                 ->whereDate('expiration_date', $targetDate)

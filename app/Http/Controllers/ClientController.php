@@ -15,7 +15,7 @@ class ClientController extends Controller
      */
     public function index()
     {
-        $clients = Client::with(['services', 'payments'])
+        $clients = Client::with(['services' => fn($q) => $q->with('teamAssignments')])
             ->orderBy('created_at', 'desc')
             ->paginate(15);
 
@@ -85,7 +85,7 @@ class ClientController extends Controller
     public function show(Client $client)
     {
         $client->load(['services' => function($query) {
-            $query->orderBy('created_at', 'desc');
+            $query->with(['serviceType', 'teamAssignments'])->orderBy('created_at', 'desc');
         }, 'payments' => function($query) {
             $query->orderBy('payment_date', 'desc');
         }, 'emailLogs' => function($query) {

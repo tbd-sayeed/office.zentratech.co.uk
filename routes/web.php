@@ -7,6 +7,10 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ClientController;
 use App\Http\Controllers\ServiceController;
 use App\Http\Controllers\PaymentController;
+use App\Http\Controllers\ServiceTypeController;
+use App\Http\Controllers\ProjectTypeController;
+use App\Http\Controllers\TeamMemberController;
+use App\Http\Controllers\TeamMemberPaymentController;
 
 // Authentication Routes
 Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login');
@@ -32,4 +36,15 @@ Route::middleware(['auth'])->group(function () {
     
     // Payment Routes
     Route::resource('payments', PaymentController::class);
+
+    // Service Types & Project Types (Settings)
+    Route::resource('service-types', ServiceTypeController::class)->except(['show']);
+    Route::resource('project-types', ProjectTypeController::class)->except(['show']);
+
+    // Team Members & Payments to Team
+    Route::resource('team-members', TeamMemberController::class);
+    Route::get('team-member-payments', [TeamMemberPaymentController::class, 'index'])->name('team-member-payments.index');
+    Route::get('team-member-payments/create', [TeamMemberPaymentController::class, 'create'])->name('team-member-payments.create');
+    Route::post('team-member-payments', [TeamMemberPaymentController::class, 'store'])->name('team-member-payments.store');
+    Route::delete('team-member-payments/{teamMemberPayment}', [TeamMemberPaymentController::class, 'destroy'])->name('team-member-payments.destroy');
 });

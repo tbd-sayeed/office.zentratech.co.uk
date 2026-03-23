@@ -7,7 +7,7 @@
 <body>
     <h1>Payment Confirmation</h1>
     <p>Dear {{ $client->contact_person }},</p>
-    <p>We have received your payment of <strong>${{ number_format($payment->amount, 2) }}</strong> for the service <strong>{{ $service->service_name }}</strong>.</p>
+    <p>We have received your payment of <strong>{{ currency_format($payment->amount, $payment->currency ?? 'GBP') }}</strong> for the service <strong>{{ $service->service_name }}</strong>.</p>
     <p>Payment Date: {{ $payment->payment_date->format('M d, Y') }}</p>
     @if($payment->transaction_reference)
     <p>Transaction Reference: {{ $payment->transaction_reference }}</p>
